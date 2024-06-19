@@ -1,0 +1,39 @@
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="week13.YOO.repository.BoardMapper">
+    <select id="getBoardListDB" parameterType="week13.YOO.dto.PageHandler" resultType="week13.YOO.domain.BoardVO">
+        SELECT *
+        From boards
+        LIMIT #{offset}, #{pageSize};
+    </select>
+    <select id="getBoardOneDB" parameterType="int" resultType="week13.YOO.domain.BoardVO">
+        SELECT *
+        FROM boards
+        WHERE boardnum = #{boardnum};
+    </select>
+    <select id="recentRegiContent" parameterType="string" resultType="int">
+        SELECT boardnum
+        FROM boards
+        WHERE writer = #{id}
+        ORDER BY boardnum DESC
+        LIMIT 1
+    </select>
+    <insert id="insertBoardDB" parameterType="week13.YOO.dto.BoardDto">
+        INSERT INTO boards (title, content, regdate, viewcnt, writer) VALUES (#{title}, #{content}, now(), 0, #{writer});
+    </insert>
+
+    <update id="updateBoardDB" parameterType="week13.YOO.dto.BoardDto" >
+        UPDATE boards
+        SET title = #{title}, content = #{content}
+        WHERE boardnum = #{boardNum}
+    </update>
+    <delete id="deleteBoardDB" parameterType="int" >
+        DELETE FROM boards
+        WHERE boardnum = #{boardNum}
+    </delete>
+    <update id ="updateViewCnt" parameterType="int">
+        UPDATE boards
+        SET viewcnt = viewcnt + 1
+        WHERE boardnum = #{boardNum};
+    </update>
+</mapper>

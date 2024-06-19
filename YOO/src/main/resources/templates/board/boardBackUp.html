@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="http://code.jquery.com/jquery-latest.min.js"></script>
+    <title>Home Page</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+        }
+
+        header {
+            background-color: #333;
+            color: white;
+            padding: 10px 0;
+            text-align: center;
+        }
+
+        header h1 {
+            margin: 0;
+        }
+
+        nav ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        nav ul li {
+            display: inline;
+            margin: 0 15px;
+        }
+
+        nav ul li a {
+            color: white;
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        nav ul li a:hover {
+            text-decoration: underline;
+        }
+
+        main {
+            padding: 20px;
+            text-align: center;
+        }
+
+        footer {
+            background-color: #333;
+            color: white;
+            text-align: center;
+            padding: 10px 0;
+            position: fixed;
+            width: 100%;
+            bottom: 0;
+        }
+    </style>
+</head>
+<body>
+<header>
+    <form action="/logout" method="post" id="form">
+        <input type="submit" hidden="hidden" >
+    </form>
+    <h1>홈 화면입니다.</h1>
+    <nav>
+        <ul>
+            <li><a href="/">홈</a></li>
+            <li th:if="${session.userId == null}"><a href="/login">로그인</a></li>
+            <li th:if="${session.userId != null }"><a href="#" onclick="clickLink()">로그아웃</a></li>
+            <li><a href="/boardList">게시판</a></li>
+        </ul>
+    </nav>
+</header>
+<main>
+    <section>
+        <table>
+            <p th:text="${boardOne.getTitle()}"></p>
+            <p th:text="${boardOne.getContent()}"></p>
+            <p th:text="| 등록일 : ${#dates.format(boardOne.getRegdate(), 'yyyy년 MM월 dd일')}|"></p>
+            <p th:text="| 조회수 : ${boardOne.getViewcnt()} |"></p>
+            <p th:text="${boardOne.getWriter()}"></p>
+
+            <a th:if="${session.userId}" th:href="@{/boardModify(boardNum=${boardOne.getBoardNum()}, title=${boardOne.getTitle()}, content=${boardOne.getContent()}, writer=${boardOne.getWriter()})}">수정하기</a>
+            <form action="/board/update" method="get">
+                <input type="hidden" name="boardnum" th:value="${boardOne.getBoardNum()}" >
+                <input type="hidden" name="title" th:value="${boardOne.getTitle()}">
+                <input type="hidden" name="content" th:value="${boardOne.getContent()}">
+                <input type="hidden" name="writer" th:value="${boardOne.getWriter()}">
+                <button type="submit">수정하기</button>
+            </form>
+            <form action="/board/remove" method="post" th:if="${session.userId}">
+                <input type="hidden" name="boardnum" th:value="${boardOne.getBoardNum()}" >
+                <input type="hidden" name="writer" th:value="${boardOne.getWriter()}">
+                <button type="submit">삭제하기</button>
+            </form>
+            <div id="commentContainer">
+
+            </div>
+            <div th:if="${session.userId != null}">
+                댓글 : <input type="text" id="comment">
+                <p>
+                    <input type="button" value="등록" onclick="regiComment()">
+                </p>
+            </div>
+            <a style="border: 1px solid black" th:href="@{/boardList}">목록</a>
+        </table>
+    </section>
+</main>
+<footer>
+    <p>&copy; 2024 My Website. All rights reserved.</p>
+</footer>
+<script>
+    function clickLink(){
+        alert("로그아웃");
+        $('#form').submit();
+    }
+</script>
+<script th:inline="javascript">
+
+    $(document).ready(function(){
+        getCommentList();
+    })
+
+    const makeCommentList = (CommentList) => {
+        var commentContainer = $('#commentContainer');
+        var str = ''
+        CommentList.forEach(function(currComment){
+            console.log(currComment)
+            str += '<div>'
+            str += '<span>' + ' | 댓글 내용 :  '+currComment.comment +'</span>'
+            //str += '<span>'+currComment.regdate +'</span>'
+            str += '<span>'+' | 작성자: ' + currComment.writer +' | '+'</span>'
+            str += '<button data-cn="'+currComment.commentNum +'"data-writer="'+currComment.writer+ '" onclick="deleteComment(event)">'+ '삭제' +'</button>'
+        });
+
+        commentContainer.append(str);
+    }
+    const getCommentList = () => {
+
+        $.ajax({
+            type : 'GET',
+            url : '/comment?boardnum='+[[${boardOne.getBoardNum()}]],
+            data : {},
+            success : function (response){
+                makeCommentList(response)
+            }
+
+        })
+    }
+
+    function regiComment(){
+        commentDto = {
+            boardNum : [[${boardOne.getBoardNum()}]],
+            comment : $('#comment').val()
+        }
+        $.ajax({
+            type : 'POST',
+            url : '/comment',
+            headers : {"content-type" : "application/json"},
+            data : JSON.stringify(commentDto),
+            success : function(response) {
+                $('#commentContainer').empty();
+                getCommentList(response);
+            }
+        });
+    }
+
+    function deleteComment(event) {
+        var commentnum = event.currentTarget.getAttribute("data-cn")
+        var writer = event.currentTarget.getAttribute("data-writer")
+
+        console.log(commentnum)
+        console.log(writer)
+        $.ajax({
+            type : 'DELETE',
+            url : '/comment',
+            data : { commentNum : parseInt(commentnum) , writer: writer },
+            success : function(response){
+                $('#commentContainer').empty();
+                getCommentList(response);
+            }
+        })
+    }
+</script>
+
+</body>
+</html>
+<ul>
+    <li th:each="comment : ${post.comments}">
+        <p th:text="${comment.content}">This is a comment.</p>
+        <p>작성자: <span th:text="${comment.author}">Comment Author</span></p>
+        <p>작성일: <span th:text="${comment.date}">2024-06-19</span></p>
+        <button onclick="deleteComment(/* comment.id */)">댓글 삭제</button>
+    </li>
+</ul>

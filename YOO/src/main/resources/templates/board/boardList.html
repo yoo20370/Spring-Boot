@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="http://code.jquery.com/jquery-latest.min.js"></script>
+    <title>Home Page</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+        }
+
+        header {
+            background-color: #333;
+            color: white;
+            padding: 10px 0;
+            text-align: center;
+        }
+
+        header h1 {
+            margin: 0;
+        }
+
+        nav ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        nav ul li {
+            display: inline;
+            margin: 0 15px;
+        }
+
+        nav ul li a {
+            color: white;
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        nav ul li a:hover {
+            text-decoration: underline;
+        }
+
+        main table {
+            padding: 20px;
+            text-align: center;
+        }
+
+        footer {
+            background-color: #333;
+            color: white;
+            text-align: center;
+            padding: 10px 0;
+            position: fixed;
+            width: 100%;
+            bottom: 0;
+        }
+        table {
+            width:600px;
+            margin:auto;
+        }
+    </style>
+</head>
+<body>
+<header>
+    <form action="/logout" method="post" id="form">
+        <input type="submit" hidden="hidden" >
+    </form>
+    <h1>게시판 목록</h1>
+    <nav>
+        <ul>
+            <li><a href="/">홈</a></li>
+            <li th:if="${session.userId == null}"><a href="/login">로그인</a></li>
+            <li th:if="${session.userId != null }"><a href="#" onclick="clickLink()">로그아웃</a></li>
+            <li><a href="/boardList">게시판</a></li>
+        </ul>
+    </nav>
+</header>
+<main>
+    <section>
+        <a th:if="${session.userId}" href="/boardRegi">글쓰기</a>
+        <table border="1px solid black" >
+            <tr>
+                <th>제목</th><th>날짜</th><th>조회수</th><th>작성자</th>
+            </tr>
+            <tr th:if="${boardList.size == 0}"><td colspan="5" height="100px">게시물이 없습니다.</td></tr>
+            <tr th:each="one : ${boardList}">
+                <td>
+                    <a th:href="@{/board(boardnum=${one.getBoardNum()})}">[[${one.getTitle()}]]</a>
+                </td>
+                <td th:text="|${#dates.format(one.getRegdate(), 'yyyy년 MM월 dd일')}|"></td>
+                <td th:text="${one.getViewcnt()}"></td>
+                <td th:text="${one.getWriter()}"></td>
+            </tr>
+        </table>
+    </section>
+</main>
+<footer>
+    <p>&copy; 2024 My Website. All rights reserved.</p>
+</footer>
+<script>
+    function clickLink(){
+        alert("로그아웃");
+        $('#form').submit();
+    }
+</script>
+
+</body>
+</html>
+
+<!--<!DOCTYPE html>-->
+<!--<html lang="en">-->
+<!--<head>-->
+<!--    <meta charset="UTF-8">-->
+<!--    <title>Title</title>-->
+<!--</head>-->
+<!--<body>-->
+<!--    <h1>게시판 메인</h1>-->
+<!--    <div th:text="| page : ${pageHandler.getPage()} pageSize : ${pageHandler.getPageSize()}|"></div>-->
+<!--    <div th:if="${boardList.size != 0}">-->
+<!--        <ol th:each="one : ${boardList}">-->
+<!--            <li>-->
+<!--                <p th:text="${one.getBoardNum()}"></p>-->
+<!--                <p th:text="${one.getTitle()}"></p>-->
+<!--                <p th:text="${one.getContent()}"></p>-->
+<!--                <p th:text="|${#dates.format(one.getRegdate(), 'yyyy년 MM월 dd일')}|"></p>-->
+<!--                <p th:text="${one.getViewcnt()}"></p>-->
+<!--                <p th:text="${one.getWriter()}"></p>-->
+<!--            </li>-->
+<!--        </ol>-->
+<!--    </div>-->
+<!--    <div th:if="${boardList.size == 0}">-->
+<!--        <div>게시물이 없습니다.</div>-->
+<!--    </div>-->
+<!--</body>-->
+<!--</html>-->
