@@ -109,7 +109,6 @@ public class BoardController {
 
         // 현재 유저와 작성자가 틀리면 다시 게시물로 이동시킴
         if(!currUser.equals(boardDto.getWriter())){
-
             return "redirect:/board";
         }
 
