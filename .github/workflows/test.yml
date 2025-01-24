@@ -19,7 +19,7 @@ jobs:
 
       - name: EC2 접속하기
         run: |
-          ssh -i ~/.ssh.yoo ubuntu@${{ secrets.AWS_IP }} 
+          ssh -i ~/.ssh/yoo ubuntu@${{ secrets.AWS_IP }} 
 
       - name: gitHub에서 git pull 및 build
         run: |
