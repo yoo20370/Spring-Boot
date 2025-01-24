@@ -23,17 +23,15 @@ jobs:
 
       - name: EC2 접속하기
         run: |
-          ssh -i ~/.ssh/yoo ubuntu@${{ secrets.AWS_IP }} 
-
-      - name: gitHub에서 git pull 및 build
-        run: |
-          cd /home/ubuntu/spring/Spring-Boot/study
-          echo "이동 완료"
-          git pull origin
-          echo "git pull 완료"
-          ./gradlew clean build
-          echo "빌드 완료"
-          cd ./build/libs
-          echo "jar 파일 위치로 이동"
-          sudo java -jar study*SNAPSHOT.jar
-          echo "jar 파일 실행"
+          ssh -i ~/.ssh/yoo ubuntu@${{ secrets.AWS_IP }} << 'EOF'
+            cd /home/ubuntu/spring/Spring-Boot/study
+            echo "이동 완료"
+            git pull origin
+            echo "git pull 완료"
+            ./gradlew clean build
+            echo "빌드 완료"
+            cd ./build/libs
+            echo "jar 파일 위치로 이동"
+            sudo java -jar study*SNAPSHOT.jar
+            echo "jar 파일 실행"
+          EOF
