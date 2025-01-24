@@ -6,7 +6,7 @@ on:
       - main
 
 
-Job:
+jobs:
   CI/CD-TEST:
     runs-on: ubuntu-22.04
 
