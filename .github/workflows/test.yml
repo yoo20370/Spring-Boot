@@ -1,0 +1,30 @@
+name: 커밋 감지하고 자동으로 업데이트하기
+
+on:
+  push:
+    branch:
+      - main
+
+
+Job:
+  CI/CD-TEST:
+    runs-on: ubuntu-22.04
+
+    steps:
+      - name: Set up SSH key
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.LINUX_KEY }}" > ~/.ssh/yoo
+          chmod 600 ~/.ssh/yoo
+
+      - name: EC2 접속하기
+        run: |
+          ssh -i ~/.ssh.yoo ubuntu@${{ secrets.AWS_IP }} 
+
+      - name: gitHub에서 git pull 및 build
+        run: |
+          cd /home/ubuntu/spring/Spring-Boot/study
+          git pull origin
+          ./gradlew clean build
+          cd ./build/libs
+          sudo java -jar study*SNAPSHOT.jar
