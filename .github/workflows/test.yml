@@ -38,6 +38,6 @@ jobs:
           
             pkill -f 'java -jar' || true
           
-            sudo java -jar study*SNAPSHOT.jar &
+            sudo nohup java -jar study*SNAPSHOT.jar &
             echo "jar 파일 실행"
           EOF
